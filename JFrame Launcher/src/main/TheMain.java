@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 
 import physics.Loop;
-import physics.PhysicsManager;
 
 
 
@@ -24,6 +23,7 @@ import com.google.gson.JsonObject;
 
 
 import controller.Player;
+import controller.PlayerManager;
 import controller.Player_Panel;
 
 import jframe_render.JFrameUI;
@@ -58,11 +58,9 @@ import jinput_manager.JinputPanel;
 
 public class TheMain{
 	private static JsonObject j;
-	public static JFrameUI ui;
-	public static ArrayList<Player_Panel> panels;
+	static PlayerManager plyman;
 	public static JFrameUI frame;
 	public static JButton cont = new JButton("Continue");
-	static BS_to_Game game = new BS_to_Game();
 	
 	
 
@@ -93,13 +91,17 @@ public class TheMain{
 		cont.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				nextPanel();
+				try{
+					nextPanel();
+				}catch(Exception e){
+					e.printStackTrace();
+					System.exit(0);
+				}
 			}
 		});
 		frame.getContentPane().add(cont);
 		
-		panels = new ArrayList<Player_Panel>();
-		panels.add(new JinputPanel());
+		plyman = new PlayerManager(new Player_Panel[]{new JinputPanel()});
 //		panels.add(new WebSocketPanel());
 
 		/*
@@ -112,54 +114,43 @@ public class TheMain{
 		 * 
 		 * 
 		 */
+		try{
+			firstPanel();
+		}catch(Exception e){
+			e.printStackTrace();
+			System.exit(0);
+		}
 		
-		firstPanel();
 		
 	}//End Main Method
 	
 	private static void done(){
 		frame.getContentPane().remove(cont);
 		frame.ready();
-		Loop loop = new Loop(game, frame, new CurrentDefaultRenderer());
-		Player[] p = panels.get(0).getPlayers();
-		try {
-			panels.get(0).end();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		loop.setPlayers(p);
+//		game.players = 
+		BS_to_Game game = new BS_to_Game();
+		Loop loop = new Loop(game, frame, game.getRenderer());
+		loop.setPlayers(plyman.getPlayers());
 		Thread t = new Thread(loop);
 		t.start();
 	}
 
-	private static void firstPanel(){
-		frame.getContentPane().add(panels.get(0));
-		panels.get(0).setVisible(true);
+	private static void firstPanel() throws Exception{
+		Player_Panel current = plyman.next();
+		frame.getContentPane().add(current);
+		current.setVisible(true);
 		frame.pack();
 	}
 	
-	private static void nextPanel(){
-		if(panels.size() > 1){
-			panels.get(0).setVisible(false);
-			panels.get(0).removeAll();
-			frame.getContentPane().remove(panels.get(0));
-			panels.get(1).applyPlayers(panels.get(0).getPlayers(),  game);
-			try {
-				panels.get(0).end();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			panels.remove(0);
-			frame.getContentPane().add(panels.get(0));
-			
-		}else{
-			frame.getContentPane().remove(panels.get(0));
-//			panels.remove(0);
+	private static void nextPanel() throws Exception{
+		frame.getContentPane().remove(plyman.getCurrent());
+		Player_Panel current = plyman.next();
+		if(current == null){
 			done();
-			return;
+		}else{
+			frame.getContentPane().add(current);
+			current.setVisible(true);
+			frame.pack();
 		}
 	}
 	

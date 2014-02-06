@@ -8,5 +8,6 @@
 	<classpathentry kind="lib" path="C:/Users/Sam/Documents/code/java/jars/google-gson-2.2.4/gson-2.2.4.jar" sourcepath="C:/Users/Sam/Documents/code/java/jars/google-gson-2.2.4/gson-2.2.4-javadoc.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/Platform Brawler"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jbox2d-library"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JBox2D_Helper_Layer"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
